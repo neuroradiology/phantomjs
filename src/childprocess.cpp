@@ -33,7 +33,7 @@
 // ChildProcessContext
 //
 
-ChildProcessContext::ChildProcessContext(QObject *parent)
+ChildProcessContext::ChildProcessContext(QObject* parent)
     : QObject(parent)
     , m_proc(this)
 {
@@ -53,14 +53,14 @@ qint64 ChildProcessContext::pid() const
 {
     Q_PID pid = m_proc.pid();
 
-#if !defined(Q_OS_WIN32) && !defined(Q_OS_WINCE)
+#if !defined(Q_OS_WIN) && !defined(Q_OS_WINCE)
     return pid;
 #else
     return pid->dwProcessId;
 #endif
 }
 
-void ChildProcessContext::kill(const QString &signal)
+void ChildProcessContext::kill(const QString& signal)
 {
     // TODO: it would be nice to be able to handle more signals
     if ("SIGKILL" == signal) {
@@ -71,7 +71,7 @@ void ChildProcessContext::kill(const QString &signal)
     }
 }
 
-void ChildProcessContext::_setEncoding(const QString &encoding)
+void ChildProcessContext::_setEncoding(const QString& encoding)
 {
     m_encoding.setEncoding(encoding);
 }
@@ -79,11 +79,36 @@ void ChildProcessContext::_setEncoding(const QString &encoding)
 // This is affected by [QTBUG-5990](https://bugreports.qt-project.org/browse/QTBUG-5990).
 // `QProcess` doesn't properly handle the situations of `cmd` not existing or
 // failing to start...
-bool ChildProcessContext::_start(const QString &cmd, const QStringList &args)
+bool ChildProcessContext::_start(const QString& cmd, const QStringList& args)
 {
     m_proc.start(cmd, args);
     // TODO: Is there a better way to do this???
     return m_proc.waitForStarted(1000);
+}
+
+qint64 ChildProcessContext::_write(const QString &chunk, const QString &encoding)
+{
+    // Try to get codec for encoding
+    QTextCodec *codec = QTextCodec::codecForName(encoding.toLatin1());
+
+    // If unavailable, attempt UTF-8 codec
+    if ((QTextCodec *)NULL == codec) {
+        codec = QTextCodec::codecForName("UTF-8");
+
+        // Don't even try to write if UTF-8 codec is unavailable
+        if ((QTextCodec *)NULL == codec) {
+            return -1;
+        }
+    }
+
+    qint64 bytesWritten = m_proc.write(codec->fromUnicode(chunk));
+
+    return bytesWritten;
+}
+
+void ChildProcessContext::_close()
+{
+    m_proc.closeWriteChannel();
 }
 
 // private slots:
@@ -119,7 +144,7 @@ void ChildProcessContext::_error(const QProcess::ProcessError error)
 // ChildProcess
 //
 
-ChildProcess::ChildProcess(QObject *parent)
+ChildProcess::ChildProcess(QObject* parent)
     : QObject(parent)
 {
 }
@@ -130,7 +155,7 @@ ChildProcess::~ChildProcess()
 
 // public:
 
-QObject *ChildProcess::_createChildProcessContext()
+QObject* ChildProcess::_createChildProcessContext()
 {
     return new ChildProcessContext(this);
 }

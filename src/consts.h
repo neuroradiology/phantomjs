@@ -33,17 +33,20 @@
 #define CONSTS_H
 
 #define PHANTOMJS_VERSION_MAJOR     2
-#define PHANTOMJS_VERSION_MINOR     0
+#define PHANTOMJS_VERSION_MINOR     2
 #define PHANTOMJS_VERSION_PATCH     0
-#define PHANTOMJS_VERSION_STRING    "2.0.0 (development)"
+#define PHANTOMJS_VERSION_STRING    "2.2.0-development"
 
 #define HTTP_HEADER_CONTENT_LENGTH      "content-length"
 #define HTTP_HEADER_CONTENT_TYPE        "content-type"
 
+#define JAVASCRIPT_SOURCE_PLATFORM_URL  "phantomjs://platform/%1"
+#define JAVASCRIPT_SOURCE_CODE_URL      "phantomjs://code/%1"
+
 #define JS_ELEMENT_CLICK "(function (el) { " \
-        "var ev = document.createEvent('MouseEvents');" \
-        "ev.initEvent(\"click\", true, true);" \
-        "el.dispatchEvent(ev);" \
+    "var ev = document.createEvent('MouseEvents');" \
+    "ev.initEvent(\"click\", true, true);" \
+    "el.dispatchEvent(ev);" \
     "})(this);"
 
 #define JS_APPEND_SCRIPT_ELEMENT "var el = document.createElement('script');" \
@@ -55,6 +58,7 @@
 #define PAGE_SETTINGS_JS_ENABLED            "javascriptEnabled"
 #define PAGE_SETTINGS_XSS_AUDITING          "XSSAuditingEnabled"
 #define PAGE_SETTINGS_USER_AGENT            "userAgent"
+#define PAGE_SETTINGS_PROXY                 "proxy"
 #define PAGE_SETTINGS_LOCAL_ACCESS_REMOTE   "localToRemoteUrlAccessEnabled"
 #define PAGE_SETTINGS_USERNAME              "userName"
 #define PAGE_SETTINGS_PASSWORD              "password"
@@ -63,6 +67,7 @@
 #define PAGE_SETTINGS_WEB_SECURITY_ENABLED  "webSecurityEnabled"
 #define PAGE_SETTINGS_JS_CAN_OPEN_WINDOWS   "javascriptCanOpenWindows"
 #define PAGE_SETTINGS_JS_CAN_CLOSE_WINDOWS  "javascriptCanCloseWindows"
+#define PAGE_SETTINGS_DPI                   "dpi"
 
 #define DEFAULT_WEBDRIVER_CONFIG            "127.0.0.1:8910"
 

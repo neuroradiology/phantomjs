@@ -334,7 +334,8 @@ function decorateNewPage(opts, page) {
      */
     page.includeJs = function (scriptUrl, onScriptLoaded) {
         // Register temporary signal handler for 'alert()'
-        this.javaScriptAlertSent.connect(function (msgFromAlert) {
+        var self = this;
+        function alertCallback (msgFromAlert) {
             if (msgFromAlert === scriptUrl) {
                 // Resource loaded, time to fire the callback (if any)
                 if (onScriptLoaded && typeof(onScriptLoaded) === "function") {
@@ -342,13 +343,14 @@ function decorateNewPage(opts, page) {
                 }
                 // And disconnect the signal handler
                 try {
-                    this.javaScriptAlertSent.disconnect(arguments.callee);
+                    self.javaScriptAlertSent.disconnect(alertCallback);
                 } catch (e) {}
             }
-        });
+        }
+        self.javaScriptAlertSent.connect(alertCallback);
 
         // Append the script tag to the body
-        this._appendScriptElement(scriptUrl);
+        self._appendScriptElement(scriptUrl);
     };
 
     /**
@@ -370,8 +372,10 @@ function decorateNewPage(opts, page) {
             switch (argType) {
             case "object":      //< for type "object"
             case "array":       //< for type "array"
+                str += JSON.stringify(arg) + ","
+                break;
             case "date":        //< for type "date"
-                str += "JSON.parse(" + JSON.stringify(JSON.stringify(arg)) + "),"
+                str += "new Date(" + JSON.stringify(arg) + "),"
                 break;
             case "string":      //< for type "string"
                 str += quoteString(arg) + ',';

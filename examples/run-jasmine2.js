@@ -1,3 +1,4 @@
+"use strict";
 var system = require('system');
 
 /**
@@ -37,7 +38,7 @@ function waitFor(testFx, onReady, timeOutMillis) {
 
 
 if (system.args.length !== 2) {
-    console.log('Usage: run-jasmine.js URL');
+    console.log('Usage: run-jasmine2.js URL');
     phantom.exit(1);
 }
 
@@ -55,35 +56,36 @@ page.open(system.args[1], function(status){
     } else {
         waitFor(function(){
             return page.evaluate(function(){
-                return document.body.querySelector('.symbolSummary .pending') === null
+                return (document.body.querySelector('.jasmine-symbol-summary .jasmine-pending') === null &&
+                        document.body.querySelector('.jasmine-duration') !== null);
             });
         }, function(){
             var exitCode = page.evaluate(function(){
                 console.log('');
 
-                var el = document.body.querySelector('.banner');
-                var banner = el.querySelector('.title').innerText + " " +
-                             el.querySelector('.version').innerText + " " +
-                             el.querySelector('.duration').innerText;
+                var title = 'Jasmine';
+                var version = document.body.querySelector('.jasmine-version').innerText;
+                var duration = document.body.querySelector('.jasmine-duration').innerText;
+                var banner = title + ' ' + version + ' ' + duration;
                 console.log(banner);
 
-                var list = document.body.querySelectorAll('.results > .failures > .spec-detail.failed');
+                var list = document.body.querySelectorAll('.jasmine-results > .jasmine-failures > .jasmine-spec-detail.jasmine-failed');
                 if (list && list.length > 0) {
-                  console.log('');
-                  console.log(list.length + ' test(s) FAILED:');
-                  for (i = 0; i < list.length; ++i) {
-                      var el = list[i],
-                          desc = el.querySelector('.description'),
-                          msg = el.querySelector('.messages > .result-message');
-                      console.log('');
-                      console.log(desc.innerText);
-                      console.log(msg.innerText);
-                      console.log('');
-                  }
-                  return 1;
+                    console.log('');
+                    console.log(list.length + ' test(s) FAILED:');
+                    for (i = 0; i < list.length; ++i) {
+                        var el = list[i],
+                            desc = el.querySelector('.jasmine-description'),
+                            msg = el.querySelector('.jasmine-messages > .jasmine-result-message');
+                        console.log('');
+                        console.log(desc.innerText);
+                        console.log(msg.innerText);
+                        console.log('');
+                    }
+                    return 1;
                 } else {
-                  console.log(document.body.querySelector('.alert > .bar.passed').innerText);
-                  return 0;
+                    console.log(document.body.querySelector('.jasmine-alert > .jasmine-bar.jasmine-passed,.jasmine-alert > .jasmine-bar.jasmine-skipped').innerText);
+                    return 0;
                 }
             });
             phantom.exit(exitCode);
